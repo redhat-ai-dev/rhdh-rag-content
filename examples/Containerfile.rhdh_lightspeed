@@ -1,6 +1,6 @@
 ARG FLAVOR=cpu
 FROM quay.io/redhat-ai-dev/${FLAVOR}-road-core-base:latest as road-core-rag-builder
-ARG RHDH_DOCS_VERSION="1.6"
+ARG RHDH_DOCS_VERSION="1.7"
 ARG NUM_WORKERS=1
 
 USER 0
