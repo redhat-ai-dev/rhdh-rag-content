@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rhdh-rag-content"
+description = "RAG for RHDH"
+version = "0.1.0"
+dependencies = [
+    "lightspeed-rag-content @ git+https://github.com/lightspeed-core/rag-content@main",
+    "pyyaml",
+]
+
+authors = [
+    {name = "Maysun J Faisal"},
+]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "Apache"}
