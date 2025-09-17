@@ -157,6 +157,7 @@ cython_debug/
 
 # rag-content specific
 embeddings_model/
+vector_db
 
 # PDM
 
@@ -167,6 +168,5 @@ postgresql/
 output/
 
 # Generated files
-ocp-product-docs-plaintext
 rhdh-product-docs-plaintext
 rhdh-docs-topic-map
