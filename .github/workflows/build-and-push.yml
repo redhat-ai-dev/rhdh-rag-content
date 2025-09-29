@@ -1,0 +1,100 @@
+name: Build and Push RAG Container
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The version of RHDH documentation you want to build for. E.g. ('1.7')."
+        required: true
+      compute_flavor:
+        description: "The compute flavor for the container build."
+        required: false
+        default: "cpu"
+        type: choice
+        options:
+          - cpu
+          - gpu
+
+env:
+  IMAGE_NAME: rag-content
+  IMAGE_REGISTRY: quay.io
+  REGISTRY_ORG: redhat-ai-dev
+  LATEST_TAG: release-${{ inputs.version }}-lcs
+  CONTAINER_FILE: Containerfile.rhdh_lightspeed
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Install buildah
+        run: |
+          sudo apt update
+          sudo apt install -y buildah
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build image with Buildah
+        id: build_image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          tags: |
+            ${{ env.LATEST_TAG }}-${{ matrix.arch }}
+          containerfiles: |
+            ${{ env.CONTAINER_FILE }}
+          archs: ${{ matrix.arch }}
+          oci: true
+          build-args: |
+            RHDH_DOCS_VERSION=${{ inputs.version }}
+            FLAVOR=${{ inputs.compute_flavor }}
+      - name: Check images
+        run: |
+          buildah images | grep '${{ env.IMAGE_NAME }}'
+          echo '${{ steps.build_image.outputs.image }}'
+          echo '${{ steps.build_image.outputs.tags }}'
+      - name: Push architecture-specific image to Quay.io
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: ${{ steps.build_image.outputs.tags }}
+          registry: ${{ env.IMAGE_REGISTRY }}/${{ env.REGISTRY_ORG }}
+          username: ${{ secrets.QUAY_REGISTRY_USERNAME }}
+          password: ${{ secrets.QUAY_REGISTRY_PASSWORD }}
+
+  create-manifest:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Install buildah
+        run: |
+          sudo apt update
+          sudo apt install -y buildah
+      - name: Login to registry
+        run: |
+          echo "${{ secrets.QUAY_REGISTRY_PASSWORD }}" | buildah login --username "${{ secrets.QUAY_REGISTRY_USERNAME }}" --password-stdin ${{ env.IMAGE_REGISTRY }}
+      - name: Create and push manifest
+        run: |
+          # Create manifests
+          buildah manifest create ${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}
+          buildah manifest add ${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}-amd64
+          buildah manifest add ${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}-arm64
+          
+          buildah manifest create ${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}-${{ github.sha }}
+          buildah manifest add ${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}-${{ github.sha }} ${{ env.IMAGE_REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}-amd64
+          buildah manifest add ${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}-${{ github.sha }} ${{ env.IMAGE_REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}-arm64
+          
+          # Push manifests
+          buildah manifest push --all ${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }} docker://${{ env.IMAGE_REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}
+          buildah manifest push --all ${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}-${{ github.sha }} docker://${{ env.IMAGE_REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.LATEST_TAG }}-${{ github.sha }}
