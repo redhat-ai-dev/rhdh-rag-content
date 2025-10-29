@@ -7,7 +7,7 @@ name = "rhdh-rag-content"
 description = "RAG for RHDH"
 version = "0.1.0"
 dependencies = [
-    "lightspeed-rag-content @ git+https://github.com/lightspeed-core/rag-content@main",
+    "lightspeed-rag-content @ git+https://github.com/lightspeed-core/rag-content@0d4c9c81ab02c0aa7e478829739c0c0a59c9d1b6",
     "pyyaml",
 ]
 
