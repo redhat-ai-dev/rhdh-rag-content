@@ -636,7 +636,7 @@ wheels = [
 [[package]]
 name = "lightspeed-rag-content"
 version = "0.1.0"
-source = { git = "https://github.com/lightspeed-core/rag-content?rev=main#218898f06aea3a2f4afde0ab36cd58f6b66a623c" }
+source = { git = "https://github.com/lightspeed-core/rag-content?rev=0d4c9c81ab02c0aa7e478829739c0c0a59c9d1b6#0d4c9c81ab02c0aa7e478829739c0c0a59c9d1b6" }
 dependencies = [
     { name = "aiosqlite" },
     { name = "faiss-cpu" },
@@ -1662,7 +1662,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "lightspeed-rag-content", git = "https://github.com/lightspeed-core/rag-content?rev=main" },
+    { name = "lightspeed-rag-content", git = "https://github.com/lightspeed-core/rag-content?rev=0d4c9c81ab02c0aa7e478829739c0c0a59c9d1b6" },
     { name = "pyyaml" },
 ]
 
