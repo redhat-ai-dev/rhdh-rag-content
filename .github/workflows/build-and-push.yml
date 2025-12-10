@@ -29,16 +29,35 @@ on:
         options:
           - cpu
           - gpu
+      experimental:
+        description: "Build experimental version that will not override stable image tags."
+        required: false
+        default: false
+        type: boolean
 
 env:
   IMAGE_NAME: rag-content
   IMAGE_REGISTRY: quay.io
   REGISTRY_ORG: redhat-ai-dev
-  LATEST_TAG: release-${{ inputs.version }}-lcs
   CONTAINER_FILE: Containerfile.rhdh_lightspeed
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      latest_tag: ${{ steps.set_tag.outputs.latest_tag }}
+    steps:
+      - name: Set tag prefix
+        id: set_tag
+        run: |
+          if [ "${{ inputs.experimental }}" == "true" ]; then
+            echo "latest_tag=experimental-release-${{ inputs.version }}-lcs" >> $GITHUB_OUTPUT
+          else
+            echo "latest_tag=release-${{ inputs.version }}-lcs" >> $GITHUB_OUTPUT
+          fi
+
   build:
+    needs: setup
     strategy:
       matrix:
         include:
@@ -51,6 +70,9 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Set tag from setup
+        run: |
+          echo "LATEST_TAG=${{ needs.setup.outputs.latest_tag }}" >> $GITHUB_ENV
       - name: Install buildah
         run: |
           sudo apt update
@@ -86,12 +108,15 @@ jobs:
           password: ${{ secrets.QUAY_REGISTRY_PASSWORD }}
 
   create-manifest:
-    needs: build
+    needs: [build, setup]
     runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
     steps:
+      - name: Set tag from setup
+        run: |
+          echo "LATEST_TAG=${{ needs.setup.outputs.latest_tag }}" >> $GITHUB_ENV
       - name: Install buildah
         run: |
           sudo apt update
