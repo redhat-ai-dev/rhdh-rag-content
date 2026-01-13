@@ -1,6 +1,7 @@
 # RHDH RAG CONTENT
 
 [![Apache2.0 License](https://img.shields.io/badge/license-Apache2.0-brightgreen.svg)](LICENSE)
+[![Llama Stack Version](https://img.shields.io/badge/llama_stack-v0.3.5-blue)](https://llamastack.github.io/docs/v0.3.5)
 
 > [!NOTE]
 > The `main` branch host the RHDH RAG logic compatible with lightspeed-core's [LCS](https://github.com/lightspeed-core/lightspeed-stack) and [rag-content](https://github.com/lightspeed-core/rag-content).
