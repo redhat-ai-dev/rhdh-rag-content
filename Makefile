@@ -17,6 +17,7 @@
 # Default to CPU if not specified
 FLAVOR ?= cpu
 NUM_WORKERS ?= $$(( $(shell nproc --all) / 2))
+PLATFORM ?= linux/amd64
 
 # Define behavior based on the flavor
 ifeq ($(FLAVOR),cpu)
@@ -27,8 +28,8 @@ else
 $(error Unsupported FLAVOR $(FLAVOR), must be 'cpu' or 'gpu')
 endif
 
-build-image-rhdh-example: ## Build a rag-content container image for RHDH
-	podman build --platform linux/amd64 -t rhdh-rag-content -f Containerfile.rhdh_lightspeed --build-arg FLAVOR=$(TORCH_GROUP) .
+build-image:
+	podman build --platform ${PLATFORM} -t rhdh-rag-content -f Containerfile --build-arg FLAVOR=$(TORCH_GROUP) .
 
 help: ## Show this help screen
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'

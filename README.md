@@ -21,7 +21,7 @@ Activate the venv, and you should be able to execute the python scripts
 
 To build a container image, run
 ```
-make build-image-rhdh-example
+make build-image
 ```
 
 The quay image is located in [redhat-ai-dev/rag-content](https://quay.io/repository/redhat-ai-dev/rag-content?tab=tags).
