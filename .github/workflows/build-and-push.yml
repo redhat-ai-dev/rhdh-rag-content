@@ -39,7 +39,7 @@ env:
   IMAGE_NAME: rag-content
   IMAGE_REGISTRY: quay.io
   REGISTRY_ORG: redhat-ai-dev
-  CONTAINER_FILE: Containerfile.rhdh_lightspeed
+  CONTAINER_FILE: Containerfile
 
 jobs:
   setup:

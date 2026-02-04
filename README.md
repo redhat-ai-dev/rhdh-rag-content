@@ -38,7 +38,7 @@ The final container image is minimal and only contains the vector database files
 podman build --platform linux/arm64 \
     --target lightspeed-core-rag-builder \
     -t rhdh-rag-builder \
-    -f Containerfile.rhdh_lightspeed \
+    -f Containerfile \
     --build-arg FLAVOR=cpu .
 ```
 
