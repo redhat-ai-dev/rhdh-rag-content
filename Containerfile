@@ -22,10 +22,6 @@ ARG NUM_WORKERS=1
 USER 0
 WORKDIR /rag-content
 
-COPY ./pyproject.toml ./
-
-RUN uv sync --no-dev
-
 # ADD THIS LINE to pre-download the required NLTK data
 RUN python -c "import nltk; nltk.download('stopwords')"
 
