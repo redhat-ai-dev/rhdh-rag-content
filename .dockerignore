@@ -1,3 +1,19 @@
+.git
+.github
+.pdm-build
+.pytest_cache
+.uv-cache
+.venv
+.gitignore
+.pdm-python
+.pre-commit-config.yaml
+
+OWNERS
+
+# Used locally, not required for image
+src
+tests
+
 # Generated files, dont copy from local path during build
 rhdh-product-docs-plaintext
 rhdh-docs-topic-map
