@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "The version of RHDH documentation you want to build for. E.g. ('1.7')."
+        description: "The version of RHDH documentation you want to build for. E.g. ('1.8')."
         required: true
       compute_flavor:
         description: "The compute flavor for the container build."
@@ -29,11 +29,9 @@ on:
         options:
           - cpu
           - gpu
-      experimental:
-        description: "Build experimental version that will not override stable image tags."
-        required: false
-        default: false
-        type: boolean
+      llama_stack_version:
+        description: "Llama stack version key from ci-versions.json (e.g. '0.4.3' or 'latest' for experimental)."
+        required: true
 
 env:
   IMAGE_NAME: rag-content
@@ -45,16 +43,37 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      latest_tag: ${{ steps.set_tag.outputs.latest_tag }}
+      upstream_tag: ${{ steps.resolve.outputs.upstream_tag }}
+      latest_tag: ${{ steps.resolve.outputs.latest_tag }}
     steps:
-      - name: Set tag prefix
-        id: set_tag
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Resolve ci-versions.json
+        id: resolve
         run: |
-          if [ "${{ inputs.experimental }}" == "true" ]; then
-            echo "latest_tag=experimental-release-${{ inputs.version }}-lcs" >> $GITHUB_OUTPUT
-          else
-            echo "latest_tag=release-${{ inputs.version }}-lcs" >> $GITHUB_OUTPUT
+          LLAMA_VERSION="${{ inputs.llama_stack_version }}"
+
+          # Validate the version exists in ci-versions.json
+          UPSTREAM_TAG=$(jq -r --arg v "$LLAMA_VERSION" '.images[$v].lightspeed_rag_content_tag // empty' ci-versions.json)
+          if [ -z "$UPSTREAM_TAG" ]; then
+            echo "::error::Llama stack version '$LLAMA_VERSION' not found in ci-versions.json. Available versions: $(jq -r '.images | keys | join(", ")' ci-versions.json)"
+            exit 1
           fi
+
+          # Map 'latest' to 'experimental' for the image tag suffix
+          if [ "$LLAMA_VERSION" == "latest" ]; then
+            TAG_SUFFIX="experimental"
+          else
+            TAG_SUFFIX="$LLAMA_VERSION"
+          fi
+
+          LATEST_TAG="release-${{ inputs.version }}-lls-${TAG_SUFFIX}"
+
+          echo "upstream_tag=${UPSTREAM_TAG}" >> $GITHUB_OUTPUT
+          echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
+
+          echo "Resolved upstream tag: ${UPSTREAM_TAG}"
+          echo "Image tag: ${LATEST_TAG}"
 
   build:
     needs: setup
@@ -93,6 +112,7 @@ jobs:
           build-args: |
             RHDH_DOCS_VERSION=${{ inputs.version }}
             FLAVOR=${{ inputs.compute_flavor }}
+            TAG=${{ needs.setup.outputs.upstream_tag }}
       - name: Check images
         run: |
           buildah images | grep '${{ env.IMAGE_NAME }}'

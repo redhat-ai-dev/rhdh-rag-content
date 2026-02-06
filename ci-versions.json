@@ -1,0 +1,13 @@
+{
+    "images": {
+        "0.3.5": {
+            "lightspeed_rag_content_tag": "dev-20260123-60036ff"
+        },
+        "0.4.3": {
+            "lightspeed_rag_content_tag": "dev-20260206-3f0dec2"
+        },
+        "latest": {
+            "lightspeed_rag_content_tag": "latest"
+        }
+    }
+}
