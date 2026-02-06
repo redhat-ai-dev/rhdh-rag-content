@@ -13,6 +13,7 @@ dependencies = [
 
 authors = [
     {name = "Maysun J Faisal"},
+    {name = "Jordan Dubrick"},
 ]
 requires-python = "==3.12.*"
 readme = "README.md"
