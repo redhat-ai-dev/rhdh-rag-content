@@ -1,11 +1,9 @@
 .git
 .github
-.pdm-build
 .pytest_cache
 .uv-cache
 .venv
 .gitignore
-.pdm-python
 .pre-commit-config.yaml
 
 OWNERS
