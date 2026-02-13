@@ -14,16 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ARG FLAVOR=cpu
-FROM quay.io/lightspeed-core/rag-content-${FLAVOR}:dev-20260123-60036ff as lightspeed-core-rag-builder
+ARG TAG=latest
+FROM quay.io/lightspeed-core/rag-content-${FLAVOR}:${TAG} as lightspeed-core-rag-builder
 ARG RHDH_DOCS_VERSION="1.9"
 ARG NUM_WORKERS=1
 
 USER 0
 WORKDIR /rag-content
-
-COPY ./pyproject.toml ./
-
-RUN uv sync --no-dev
 
 # ADD THIS LINE to pre-download the required NLTK data
 RUN python -c "import nltk; nltk.download('stopwords')"
