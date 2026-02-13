@@ -36,7 +36,7 @@ on:
 env:
   IMAGE_NAME: rag-content
   IMAGE_REGISTRY: quay.io
-  REGISTRY_ORG: rh-ee-jdubrick
+  REGISTRY_ORG: redhat-ai-dev
   CONTAINER_FILE: Containerfile
 
 jobs:
