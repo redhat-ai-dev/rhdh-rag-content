@@ -16,7 +16,11 @@
 
 # Default to CPU if not specified
 FLAVOR ?= cpu
+TAG ?= latest
+RHDH_DOCS_VERSION ?= 1.9
 NUM_WORKERS ?= $$(( $(shell nproc --all) / 2))
+PLATFORM ?= linux/amd64
+IMAGE_NAME ?= rhdh-rag-content
 
 # Define behavior based on the flavor
 ifeq ($(FLAVOR),cpu)
@@ -27,8 +31,8 @@ else
 $(error Unsupported FLAVOR $(FLAVOR), must be 'cpu' or 'gpu')
 endif
 
-build-image-rhdh-example: ## Build a rag-content container image for RHDH
-	podman build --platform linux/amd64 -t rhdh-rag-content -f Containerfile.rhdh_lightspeed --build-arg FLAVOR=$(TORCH_GROUP) .
+build-image:
+	podman build --platform ${PLATFORM} -t ${IMAGE_NAME} -f Containerfile --build-arg FLAVOR=$(TORCH_GROUP) --build-arg TAG=$(TAG) --build-arg RHDH_DOCS_VERSION=$(RHDH_DOCS_VERSION) .
 
 help: ## Show this help screen
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'
