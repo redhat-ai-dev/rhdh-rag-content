@@ -1,0 +1,121 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    "helpers:pinGitHubActionDigests",
+    ":gitSignOff"
+  ],
+  "timezone": "America/Toronto",
+  "schedule": [
+    "* 19-23 * * 0",
+    "* 0-2 * * 1"
+  ],
+  "enabledManagers": [
+    "dockerfile",
+    "github-actions",
+    "custom.regex",
+    "pep621"
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "pyproject\\.toml$"
+      ],
+      "matchStrings": [
+        "\"(?<depName>\\S*)\\s+@\\s+git\\+(?<packageName>\\S*)@(?<currentDigest>\\S*)\",\\n"
+      ],
+      "currentValueTemplate": "main",
+      "datasourceTemplate": "git-refs",
+      "packageNameTemplate": "{{{packageName}}}",
+      "depNameTemplate": "{{{depName}}}"
+    },
+    {
+      "fileMatch": [
+        "(M|m)akefile$"
+      ],
+      "matchStrings": [
+        "RHDH_DOCS_VERSION\\s+\\?\\=\\s+\"?(?<currentValue>.*)\"?\\n"
+      ],
+      "datasourceTemplate": "custom.rhdh",
+      "packageNameTemplate": "rhdh",
+      "depNameTemplate": "rhdh"
+    },
+    {
+      "fileMatch": [
+        "Containerfile$"
+      ],
+      "matchStrings": [
+        "ARG\\s+RHDH_DOCS_VERSION\\=\"(?<currentValue>.*)\"\\n"
+      ],
+      "datasourceTemplate": "custom.rhdh",
+      "packageNameTemplate": "rhdh",
+      "depNameTemplate": "rhdh"
+    }
+  ],
+  "customDatasources": {
+    "rhdh": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/redhat-developer/rhdh/refs/heads/main/package.json",
+      "format": "json",
+      "transformTemplates": [
+        "{\"releases\":[{\"version\": $replace($.version, \"/(\\\\d+)\\\\.(\\\\d+).(\\\\d+)/\", \"$1.$2\")}]}"
+      ]
+    }
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["registry.access.redhat.com/ubi9/ubi-minimal"],
+      "matchUpdateTypes": ["major", "patch"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["quay.io/lightspeed-core/rag-content-cpu"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["quay.io/lightspeed-core/rag-content-gpu"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["pep621"],
+      "matchPackageNames": ["python"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["pep621"],
+      "matchCurrentValue": "\".+@\\s+git\\+.+\",\\n",
+      "enabled": false
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "groupSlug": "github-actions",
+      "commitMessageTopic": "{{depName}}"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "groupName": "dockerfile deps",
+      "groupSlug": "dockerfile-deps",
+      "commitMessageTopic": "{{depName}}"
+    },
+    {
+      "matchManagers": ["pep621"],
+      "groupName": "python deps",
+      "groupSlug": "python-deps",
+      "commitMessageTopic": "{{depName}}"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
+  "prHourlyLimit": 20,
+  "prConcurrentLimit": 1,
+  "labels": ["renovatebot"]
+}
