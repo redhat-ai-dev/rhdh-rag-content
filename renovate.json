@@ -116,6 +116,6 @@
     "enabled": true
   },
   "prHourlyLimit": 20,
-  "prConcurrentLimit": 1,
+  "prConcurrentLimit": 10,
   "labels": ["renovatebot"]
 }
