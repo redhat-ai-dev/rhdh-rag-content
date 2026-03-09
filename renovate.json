@@ -90,7 +90,7 @@
     },
     {
       "matchManagers": ["pep621"],
-      "matchCurrentValue": "\".+@\\s+git\\+.+\",\\n",
+      "matchPackageNames": ["lightspeed-rag-content"],
       "enabled": false
     },
     {
