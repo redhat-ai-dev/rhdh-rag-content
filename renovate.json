@@ -57,7 +57,7 @@
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/redhat-developer/rhdh/refs/heads/main/package.json",
       "format": "json",
       "transformTemplates": [
-        "{\"releases\":[{\"version\": $replace($.version, \"/(\\\\d+)\\\\.(\\\\d+).(\\\\d+)/\", \"$1.$2\")}]}"
+        "{\"releases\":[{\"version\": $.version}]}"
       ]
     }
   },
@@ -92,6 +92,11 @@
       "matchManagers": ["pep621"],
       "matchCurrentValue": "\".+@\\s+git\\+.+\",\\n",
       "enabled": false
+    },
+    {
+      "matchPackageNames": ["rhdh"],
+      "extractVersion": "^(?<version>\\d+\\.\\d+)",
+      "versioning": "loose"
     },
     {
       "matchManagers": ["github-actions"],
