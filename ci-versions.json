@@ -9,7 +9,7 @@
             "lightspeed_rag_content_tag": "dev-20260211-f43189b"
         },
         {
-            "llama_stack_version": "0.4.3",
+            "llama_stack_version": "latest",
             "lightspeed_rag_content_tag": "latest"
         }
     ]
