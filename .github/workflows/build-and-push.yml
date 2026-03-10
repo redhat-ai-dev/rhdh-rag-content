@@ -55,9 +55,9 @@ jobs:
           LLAMA_VERSION="${{ inputs.llama_stack_version }}"
 
           # Validate the version exists in ci-versions.json
-          UPSTREAM_TAG=$(jq -r --arg v "$LLAMA_VERSION" '.images[$v].lightspeed_rag_content_tag // empty' ci-versions.json)
+          UPSTREAM_TAG=$(jq -r --arg v "$LLAMA_VERSION" '.images[] | select(.llama_stack_version == $v) | .lightspeed_rag_content_tag' ci-versions.json)
           if [ -z "$UPSTREAM_TAG" ]; then
-            echo "::error::Llama stack version '$LLAMA_VERSION' not found in ci-versions.json. Available versions: $(jq -r '.images | keys | join(", ")' ci-versions.json)"
+            echo "::error::Llama stack version '$LLAMA_VERSION' not found in ci-versions.json. Available versions: $(jq -r '[.images[].llama_stack_version] | join(", ")' ci-versions.json)"
             exit 1
           fi
 

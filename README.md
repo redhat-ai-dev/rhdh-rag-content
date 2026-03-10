@@ -57,30 +57,35 @@ The [`ci-versions.json`](ci-versions.json) file is the single source of truth fo
 
 ```json
 {
-    "images": {
-        "0.3.5": {
+    "images": [
+        {
+            "llama_stack_version": "0.3.5",
             "lightspeed_rag_content_tag": "dev-20260123-60036ff"
         },
-        "0.4.3": {
+        {
+            "llama_stack_version": "0.4.3",
             "lightspeed_rag_content_tag": "dev-20260130-1c38b94"
         },
-        "latest": {
+        {
+            "llama_stack_version": "0.4.3",
             "lightspeed_rag_content_tag": "latest"
         }
-    }
+    ]
 }
 ```
 
-- Each key under `images` is a llama stack version (e.g. `0.3.5`, `0.4.3`, `latest`).
+- `images` is an array of objects, each representing a supported llama stack version.
+- `llama_stack_version` is the llama stack version string (e.g. `0.3.5`, `0.4.3`, `latest`).
 - `lightspeed_rag_content_tag` is the image tag for the upstream `quay.io/lightspeed-core/rag-content-{flavor}` image.
 - The `latest` entry tracks the upstream `latest` tag and is considered experimental / potentially unstable.
 
 ### Adding a New Llama Stack Version
 
-To add support for a new llama stack version, add a new entry under `images` with the version as the key and the pinned upstream image tag:
+To add support for a new llama stack version, append a new object to the `images` array with the version and pinned upstream image tag:
 
 ```json
-"0.5.0": {
+{
+    "llama_stack_version": "0.5.0",
     "lightspeed_rag_content_tag": "dev-20260215-abc1234"
 }
 ```
