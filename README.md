@@ -67,7 +67,7 @@ The [`ci-versions.json`](ci-versions.json) file is the single source of truth fo
             "lightspeed_rag_content_tag": "dev-20260130-1c38b94"
         },
         {
-            "llama_stack_version": "0.4.3",
+            "llama_stack_version": "latest",
             "lightspeed_rag_content_tag": "latest"
         }
     ]
