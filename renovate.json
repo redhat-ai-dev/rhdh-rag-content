@@ -36,9 +36,9 @@
       "matchStrings": [
         "RHDH_DOCS_VERSION\\s+\\?\\=\\s+\"?(?<currentValue>.*)\"?\\n"
       ],
-      "datasourceTemplate": "custom.rhdh",
-      "packageNameTemplate": "rhdh",
-      "depNameTemplate": "rhdh"
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "redhat-developer/red-hat-developers-documentation-rhdh",
+      "depNameTemplate": "rhdh-docs"
     },
     {
       "fileMatch": [
@@ -47,20 +47,11 @@
       "matchStrings": [
         "ARG\\s+RHDH_DOCS_VERSION\\=\"(?<currentValue>.*)\"\\n"
       ],
-      "datasourceTemplate": "custom.rhdh",
-      "packageNameTemplate": "rhdh",
-      "depNameTemplate": "rhdh"
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "redhat-developer/red-hat-developers-documentation-rhdh",
+      "depNameTemplate": "rhdh-docs"
     }
   ],
-  "customDatasources": {
-    "rhdh": {
-      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/redhat-developer/rhdh/refs/heads/main/package.json",
-      "format": "json",
-      "transformTemplates": [
-        "{\"releases\":[{\"version\": $.version}]}"
-      ]
-    }
-  },
   "packageRules": [
     {
       "matchUpdateTypes": ["major"],
@@ -94,7 +85,7 @@
       "enabled": false
     },
     {
-      "matchPackageNames": ["rhdh"],
+      "matchDepNames": ["rhdh-docs"],
       "extractVersion": "^(?<version>\\d+\\.\\d+)",
       "versioning": "loose"
     },
