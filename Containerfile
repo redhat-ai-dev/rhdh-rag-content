@@ -15,7 +15,7 @@
 # limitations under the License.
 ARG FLAVOR=cpu
 ARG TAG=latest
-FROM quay.io/lightspeed-core/rag-content-${FLAVOR}:${TAG} as lightspeed-core-rag-builder
+FROM quay.io/lightspeed-core/rag-content-${FLAVOR}:${TAG} AS lightspeed-core-rag-builder
 ARG RHDH_DOCS_VERSION="1.9"
 ARG NUM_WORKERS=1
 

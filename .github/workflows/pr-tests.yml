@@ -1,0 +1,48 @@
+#
+#
+# Copyright Red Hat
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+name: PR Image Smoke Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  image-test:
+    strategy:
+      matrix:
+        flavor: [cpu]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      BASE_TAG: latest
+      IMAGE_NAME: rhdh-rag-content-test
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
+
+      - name: Build image
+        run: |
+          docker build \
+            --build-arg FLAVOR=${{ matrix.flavor }} \
+            --build-arg TAG=${{ env.BASE_TAG }} \
+            -t ${{ env.IMAGE_NAME }}:${{ matrix.flavor }} \
+            -f Containerfile .
+
+      - name: Validate image content
+        run: |
+          .ci/test_image_content.sh "${{ env.IMAGE_NAME }}:${{ matrix.flavor }}"
