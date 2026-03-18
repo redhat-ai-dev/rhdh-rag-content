@@ -140,6 +140,12 @@ This defaults to `cpu` flavor. To build for GPU:
 make build-image FLAVOR=gpu
 ```
 
+#### GPU Build Notes
+
+- No NVIDIA GPU is required to **build** the GPU-flavored image. The CUDA libraries are bundled in the upstream base image. A GPU is only needed to **run** GPU-accelerated workloads from the built image.
+- The `PLATFORM` Makefile variable defaults to `linux/amd64` but can be overridden to match your local architecture (e.g. `PLATFORM=linux/arm64` on Apple Silicon). Both the NVIDIA CUDA base image and the upstream `lightspeed-core/rag-content-gpu` image support `amd64` and `arm64`.
+- Machines without CUDA-capable NVIDIA GPUs can build and test the image, but cannot use it for GPU-accelerated inference.
+
 ## Verifying Vector Database
 
 After building the container image, you can inspect and query the generated vector database to verify its contents.
