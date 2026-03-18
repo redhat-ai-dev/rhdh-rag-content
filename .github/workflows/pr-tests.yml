@@ -23,7 +23,7 @@ jobs:
   image-test:
     strategy:
       matrix:
-        flavor: [cpu]
+        flavor: [cpu, gpu]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
