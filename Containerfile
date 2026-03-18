@@ -22,8 +22,14 @@ ARG NUM_WORKERS=1
 USER 0
 WORKDIR /rag-content
 
-# ADD THIS LINE to pre-download the required NLTK data
 RUN python -c "import nltk; nltk.download('stopwords')"
+
+# The upstream GPU image does not include git; install it if missing.
+RUN if ! command -v git > /dev/null 2>&1; then \
+        (dnf install -y --nodocs --setopt=keepcache=0 git || \
+         microdnf install -y --nodocs --setopt=keepcache=0 git) && \
+        (dnf clean all 2>/dev/null || microdnf clean all 2>/dev/null || true); \
+    fi
 
 COPY scripts/ .
 # Modify script inplace to account for new path
