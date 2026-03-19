@@ -13,9 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-ARG FLAVOR=cpu
-ARG TAG=latest
-FROM quay.io/lightspeed-core/rag-content-${FLAVOR}:${TAG} AS lightspeed-core-rag-builder
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE} AS lightspeed-core-rag-builder
 ARG RHDH_DOCS_VERSION="1.9"
 ARG NUM_WORKERS=1
 
