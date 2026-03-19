@@ -27,7 +27,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      BASE_TAG: latest
       IMAGE_NAME: rhdh-rag-content-test
     permissions:
       contents: read
@@ -45,11 +44,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
 
+      - name: Resolve base image
+        id: resolve
+        run: |
+          echo "base_image=$(./scripts/resolve-base-image.sh latest ${{ matrix.flavor }})" >> $GITHUB_OUTPUT
+
       - name: Build image
         run: |
           docker build \
-            --build-arg FLAVOR=${{ matrix.flavor }} \
-            --build-arg TAG=${{ env.BASE_TAG }} \
+            --build-arg BASE_IMAGE=${{ steps.resolve.outputs.base_image }} \
             -t ${{ env.IMAGE_NAME }}:${{ matrix.flavor }} \
             -f Containerfile .
 
