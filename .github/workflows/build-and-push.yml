@@ -65,6 +65,10 @@ jobs:
 
           LATEST_TAG="release-${{ inputs.version }}-lls-${TAG_SUFFIX}"
 
+          if [ "${{ inputs.compute_flavor }}" == "gpu" ]; then
+            LATEST_TAG="${LATEST_TAG}-gpu"
+          fi
+
           echo "base_image=${BASE_IMAGE}" >> $GITHUB_OUTPUT
           echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
 
