@@ -30,7 +30,7 @@ on:
           - cpu
           - gpu
       llama_stack_version:
-        description: "Llama stack version key from ci-versions.json (e.g. '0.4.3' or 'latest' for experimental)."
+        description: "Llama stack version key from versions.json (e.g. '0.4.3' or 'latest' for experimental)."
         required: true
 
 env:
@@ -44,22 +44,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      upstream_tag: ${{ steps.resolve.outputs.upstream_tag }}
+      base_image: ${{ steps.resolve.outputs.base_image }}
       latest_tag: ${{ steps.resolve.outputs.latest_tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
-      - name: Resolve ci-versions.json
+      - name: Resolve base image and tag
         id: resolve
         run: |
           LLAMA_VERSION="${{ inputs.llama_stack_version }}"
 
-          # Validate the version exists in ci-versions.json
-          UPSTREAM_TAG=$(jq -r --arg v "$LLAMA_VERSION" '.images[] | select(.llama_stack_version == $v) | .lightspeed_rag_content_tag' ci-versions.json)
-          if [ -z "$UPSTREAM_TAG" ]; then
-            echo "::error::Llama stack version '$LLAMA_VERSION' not found in ci-versions.json. Available versions: $(jq -r '[.images[].llama_stack_version] | join(", ")' ci-versions.json)"
-            exit 1
-          fi
+          BASE_IMAGE=$(./scripts/resolve-base-image.sh "$LLAMA_VERSION" "${{ inputs.compute_flavor }}")
 
           # Map 'latest' to 'experimental' for the image tag suffix
           if [ "$LLAMA_VERSION" == "latest" ]; then
@@ -70,10 +65,14 @@ jobs:
 
           LATEST_TAG="release-${{ inputs.version }}-lls-${TAG_SUFFIX}"
 
-          echo "upstream_tag=${UPSTREAM_TAG}" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.compute_flavor }}" == "gpu" ]; then
+            LATEST_TAG="${LATEST_TAG}-gpu"
+          fi
+
+          echo "base_image=${BASE_IMAGE}" >> $GITHUB_OUTPUT
           echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
 
-          echo "Resolved upstream tag: ${UPSTREAM_TAG}"
+          echo "Resolved base image: ${BASE_IMAGE}"
           echo "Image tag: ${LATEST_TAG}"
 
   build:
@@ -113,8 +112,7 @@ jobs:
           oci: true
           build-args: |
             RHDH_DOCS_VERSION=${{ inputs.version }}
-            FLAVOR=${{ inputs.compute_flavor }}
-            TAG=${{ needs.setup.outputs.upstream_tag }}
+            BASE_IMAGE=${{ needs.setup.outputs.base_image }}
       - name: Check images
         run: |
           buildah images | grep '${{ env.IMAGE_NAME }}'

@@ -11,6 +11,7 @@ OWNERS
 # Used locally, not required for image
 src
 tests
+scripts/resolve-base-image.sh
 
 # Generated files, dont copy from local path during build
 rhdh-product-docs-plaintext
