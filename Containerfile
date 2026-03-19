@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-ARG BASE_IMAGE
+ARG BASE_IMAGE=quay.io/lightspeed-core/rag-content-cpu@sha256:297db4e12b07dcf460b1b5186764f32b6bb41841d77d085aa5e650e30f7b9031
 FROM ${BASE_IMAGE} AS lightspeed-core-rag-builder
 ARG RHDH_DOCS_VERSION="1.9"
 ARG NUM_WORKERS=1
