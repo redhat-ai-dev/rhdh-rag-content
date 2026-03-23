@@ -14,25 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Default to CPU if not specified
 FLAVOR ?= cpu
-TAG ?= latest
+LLAMA_STACK_VERSION ?= latest
 RHDH_DOCS_VERSION ?= 1.9
 NUM_WORKERS ?= $$(( $(shell nproc --all) / 2))
 PLATFORM ?= linux/amd64
 IMAGE_NAME ?= rhdh-rag-content
 
-# Define behavior based on the flavor
-ifeq ($(FLAVOR),cpu)
-TORCH_GROUP := cpu
-else ifeq ($(FLAVOR),gpu)
-TORCH_GROUP := gpu
-else
-$(error Unsupported FLAVOR $(FLAVOR), must be 'cpu' or 'gpu')
-endif
+BASE_IMAGE := $(shell ./scripts/resolve-base-image.sh "$(LLAMA_STACK_VERSION)" "$(FLAVOR)")
 
-build-image:
-	podman build --platform ${PLATFORM} -t ${IMAGE_NAME} -f Containerfile --build-arg FLAVOR=$(TORCH_GROUP) --build-arg TAG=$(TAG) --build-arg RHDH_DOCS_VERSION=$(RHDH_DOCS_VERSION) .
+build-image: ## Build the container image
+	podman build --platform ${PLATFORM} -t ${IMAGE_NAME} -f Containerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg RHDH_DOCS_VERSION=$(RHDH_DOCS_VERSION) .
 
 help: ## Show this help screen
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'

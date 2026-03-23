@@ -1,0 +1,26 @@
+{
+    "base_image": "quay.io/lightspeed-core/rag-content",
+    "images": [
+        {
+            "llama_stack_version": "0.3.5",
+            "digests": {
+                "cpu": "sha256:81467bbb8a3390be6113c0e9998f5b1c154fa859f7883a3387ded896ef9a4d1a",
+                "gpu": "sha256:200e8e224de0ed4fc87d1960ca16a776c7e44981b12ec687bf908e884c0f390f"
+            }
+        },
+        {
+            "llama_stack_version": "0.4.3",
+            "digests": {
+                "cpu": "sha256:314a616c0efc944e376f35a50c9d98f6aab53e68a0971a2195024474aee8209c",
+                "gpu": "sha256:47885985ee3f534c1cec33b4e9c5d43b870ec791b963354cb3e9c48b36ead902"
+            }
+        },
+        {
+            "llama_stack_version": "latest",
+            "digests": {
+                "cpu": "sha256:297db4e12b07dcf460b1b5186764f32b6bb41841d77d085aa5e650e30f7b9031",
+                "gpu": "sha256:092aa7492317a18d83218e33850b750f2bc024970e25ab30b0a2365af5db9867"
+            }
+        }
+    ]
+}
