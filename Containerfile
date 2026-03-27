@@ -52,21 +52,4 @@ FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7@sha256:161a4e29ea482bab6048
 COPY --from=lightspeed-core-rag-builder /rag-content/vector_db/rhdh_product_docs /rag/vector_db/rhdh_product_docs
 COPY --from=lightspeed-core-rag-builder /rag-content/embeddings_model /rag/embeddings_model
 
-RUN mkdir /licenses
-COPY LICENSE /licenses/
-
-# Labels for enterprise contract
-LABEL com.redhat.component=rhdh-lightspeed-rag-content
-LABEL description="Red Hat Developer Hub Lightspeed RAG content"
-LABEL distribution-scope=private
-LABEL io.k8s.description="Red Hat Developer Hub Lightspeed RAG content"
-LABEL io.k8s.display-name="Red Hat Developer Hub Lightspeed RAG content"
-LABEL io.openshift.tags="developerhub,rhdh,lightspeed,ai,assistant,rag"
-LABEL name=rhdh-lightspeed-rag-content
-LABEL release=1.9
-LABEL url="https://github.com/redhat-ai-dev/rhdh-rag-content"
-LABEL vendor="Red Hat, Inc."
-LABEL version=0.0.1
-LABEL summary="Red Hat Developer Hub Lightspeed RAG content"
-
 USER 65532:65532
