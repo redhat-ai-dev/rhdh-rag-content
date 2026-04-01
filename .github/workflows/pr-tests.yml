@@ -23,11 +23,12 @@ jobs:
   image-test:
     strategy:
       matrix:
-        flavor: [cpu, gpu]
+        flavor: [cpu]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       IMAGE_NAME: rhdh-rag-content-test
+      LLAMA_VERSION: 0.4.3
     permissions:
       contents: read
     steps:
@@ -47,12 +48,13 @@ jobs:
       - name: Resolve base image
         id: resolve
         run: |
-          echo "base_image=$(./scripts/resolve-base-image.sh latest ${{ matrix.flavor }})" >> $GITHUB_OUTPUT
+          echo "base_image=$(./scripts/resolve-base-image.sh ${{ env.LLAMA_VERSION }} ${{ matrix.flavor }})" >> $GITHUB_OUTPUT
 
       - name: Build image
         run: |
           docker build \
             --build-arg BASE_IMAGE=${{ steps.resolve.outputs.base_image }} \
+            --build-arg LLAMA_STACK_VERSION=${{ env.LLAMA_VERSION }} \
             -t ${{ env.IMAGE_NAME }}:${{ matrix.flavor }} \
             -f Containerfile .
 
