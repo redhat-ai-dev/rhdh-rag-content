@@ -26,7 +26,7 @@ on:
         required: true
 
 env:
-  TARGET_REPOSITORY: ${{ vars.VECTOR_STORE_TARGET_REPOSITORY || 'redhat-ai-dev/vector-stores' }}
+  TARGET_REPOSITORY: ${{ vars.VECTOR_STORE_TARGET_REPOSITORY || 'redhat-ai-dev/rhdh-vector-stores' }}
   TARGET_BASE_BRANCH: ${{ vars.VECTOR_STORE_TARGET_BASE_BRANCH || 'main' }}
   CONTAINER_FILE: Containerfile.vs
   LOCAL_IMAGE_NAME: vector-store
