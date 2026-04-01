@@ -12,6 +12,7 @@ OWNERS
 src
 tests
 scripts/resolve-base-image.sh
+scripts/open-vector-store-pr.sh
 
 # Generated files, dont copy from local path during build
 rhdh-product-docs-plaintext
