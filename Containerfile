@@ -23,23 +23,12 @@ ARG VECTOR_STORE_REF="main"
 USER 0
 WORKDIR /rag-content
 
-
-RUN set -euo pipefail && \
-    git clone --depth=1 --branch "${VECTOR_STORE_REF}" "${VECTOR_STORE_REPOSITORY}" vector-stores && \
-    VECTOR_STORE_DIR="vector-stores/${LLAMA_STACK_VERSION}/vector_db" && \
-    DOCS_VECTOR_STORE_DIR="${VECTOR_STORE_DIR}/rhdh_product_docs/${RHDH_DOCS_VERSION}" && \
-    if [ ! -d "${VECTOR_STORE_DIR}" ]; then \
-      echo "Missing vector store directory for LLS version '${LLAMA_STACK_VERSION}' at '${VECTOR_STORE_DIR}'" >&2; \
-      exit 1; \
-    fi && \
-    if [ ! -d "${DOCS_VECTOR_STORE_DIR}" ]; then \
-      echo "Missing vector store docs directory for RHDH version '${RHDH_DOCS_VERSION}' at '${DOCS_VECTOR_STORE_DIR}'" >&2; \
-      exit 1; \
-    fi && \
-    mkdir -p /prepared/rag/vector_db /prepared/rag && \
-    mkdir -p /prepared/rag/vector_db/rhdh_product_docs && \
-    cp -a "${DOCS_VECTOR_STORE_DIR}" "/prepared/rag/vector_db/rhdh_product_docs/${RHDH_DOCS_VERSION}" && \
-    cp -a /rag-content/embeddings_model /prepared/rag/embeddings_model
+COPY scripts/prepare-vector-store.sh scripts/prepare-vector-store.sh
+RUN ./scripts/prepare-vector-store.sh \
+    "${VECTOR_STORE_REPOSITORY}" \
+    "${VECTOR_STORE_REF}" \
+    "${LLAMA_STACK_VERSION}" \
+    "${RHDH_DOCS_VERSION}"
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7@sha256:161a4e29ea482bab6048c2b36031b4f302ae81e4ff18b83e61785f40dc576f5d
 COPY --from=lightspeed-core-rag-builder /prepared/rag/vector_db/rhdh_product_docs /rag/vector_db/rhdh_product_docs
