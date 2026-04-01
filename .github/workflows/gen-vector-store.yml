@@ -34,7 +34,7 @@ env:
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       base_image: ${{ steps.resolve.outputs.base_image }}
@@ -59,7 +59,7 @@ jobs:
 
   generate:
     needs: setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - name: Install buildah and rsync
@@ -104,7 +104,7 @@ jobs:
 
   open-pr:
     needs: [setup, generate]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Install GitHub CLI
