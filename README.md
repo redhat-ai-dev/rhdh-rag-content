@@ -92,6 +92,7 @@ The [`versions.json`](versions.json) file is the single source of truth for mapp
 
 ```json
 {
+    "current_version": "0.4.3",
     "base_image": "quay.io/lightspeed-core/rag-content",
     "images": [
         {
@@ -112,6 +113,7 @@ The [`versions.json`](versions.json) file is the single source of truth for mapp
 }
 ```
 
+- `current_version` is the default llama stack version used by PR smoke tests (`.github/workflows/pr-tests.yml`).
 - `base_image` is the upstream image repository prefix (e.g. `quay.io/lightspeed-core/rag-content`).
 - `images` is an array of objects, each representing a supported llama stack version.
 - `llama_stack_version` is the version string (e.g. `0.3.5`, `0.4.3`, `latest`).

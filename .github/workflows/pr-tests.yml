@@ -28,7 +28,6 @@ jobs:
     timeout-minutes: 30
     env:
       IMAGE_NAME: rhdh-rag-content-test
-      LLAMA_VERSION: 0.4.3
     permissions:
       contents: read
     steps:
@@ -45,16 +44,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
 
+      - name: Resolve llama stack version
+        id: llama-version
+        run: |
+          LLAMA_VERSION=$(jq -r '.current_version' versions.json)
+          if [ -z "$LLAMA_VERSION" ] || [ "$LLAMA_VERSION" = "null" ]; then
+            echo "versions.json is missing a valid current_version" >&2
+            exit 1
+          fi
+          echo "version=$LLAMA_VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Resolve base image
         id: resolve
         run: |
-          echo "base_image=$(./scripts/resolve-base-image.sh ${{ env.LLAMA_VERSION }} ${{ matrix.flavor }})" >> $GITHUB_OUTPUT
+          echo "base_image=$(./scripts/resolve-base-image.sh ${{ steps.llama-version.outputs.version }} ${{ matrix.flavor }})" >> $GITHUB_OUTPUT
 
       - name: Build image
         run: |
           docker build \
             --build-arg BASE_IMAGE=${{ steps.resolve.outputs.base_image }} \
-            --build-arg LLAMA_STACK_VERSION=${{ env.LLAMA_VERSION }} \
+            --build-arg LLAMA_STACK_VERSION=${{ steps.llama-version.outputs.version }} \
             -t ${{ env.IMAGE_NAME }}:${{ matrix.flavor }} \
             -f Containerfile .
 
