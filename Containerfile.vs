@@ -41,7 +41,8 @@ RUN set -e && for RHDH_VERSION in $(ls -1 rhdh-product-docs-plaintext); do \
             -v ${RHDH_VERSION}; \
     done
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7@sha256:161a4e29ea482bab6048c2b36031b4f302ae81e4ff18b83e61785f40dc576f5d
-COPY --from=lightspeed-core-rag-builder /rag-content/vector_db/rhdh_product_docs /rag/vector_db/rhdh_product_docs
+# Keep generated content under /rag while preserving /rag-content as the working directory. needed to preserve other pieces that depend on where it was built and finally stored
+RUN mkdir -p /rag/vector_db && \
+    mv /rag-content/vector_db/rhdh_product_docs /rag/vector_db/rhdh_product_docs
 
 USER 65532:65532
