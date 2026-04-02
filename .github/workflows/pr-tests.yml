@@ -54,16 +54,25 @@ jobs:
           fi
           echo "version=$LLAMA_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Resolve base image
-        id: resolve
+      - name: Resolve release asset URL
+        id: release-asset
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          echo "base_image=$(./scripts/resolve-base-image.sh ${{ steps.llama-version.outputs.version }} ${{ matrix.flavor }})" >> $GITHUB_OUTPUT
+          LLAMA_VERSION="${{ steps.llama-version.outputs.version }}"
+          RESOLVED=$(bash ./scripts/resolve-rag-assets-release.sh "${{ github.repository }}" "$LLAMA_VERSION")
+          RELEASE_TAG=$(echo "$RESOLVED" | awk -F= '$1=="release_tag"{print $2}')
+          ASSET_URL=$(echo "$RESOLVED" | awk -F= '$1=="asset_url"{print $2}')
+
+          echo "tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "asset_url=${ASSET_URL}" >> "$GITHUB_OUTPUT"
+          echo "Resolved release tag: ${RELEASE_TAG}"
+          echo "Resolved asset URL: ${ASSET_URL}"
 
       - name: Build image
         run: |
           docker build \
-            --build-arg BASE_IMAGE=${{ steps.resolve.outputs.base_image }} \
-            --build-arg LLAMA_STACK_VERSION=${{ steps.llama-version.outputs.version }} \
+            --build-arg RAG_ASSETS_URL=${{ steps.release-asset.outputs.asset_url }} \
             -t ${{ env.IMAGE_NAME }}:${{ matrix.flavor }} \
             -f Containerfile .
 

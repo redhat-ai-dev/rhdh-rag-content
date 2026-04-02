@@ -19,16 +19,16 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "The version of RHDH documentation you want to build for. E.g. ('1.8')."
+        description: "The version of RHDH documentation you want to build for. E.g. ('1.9')."
         required: true
       llama_stack_version:
-        description: "Llama stack version key from versions.json (e.g. '0.4.3' or 'latest' for experimental)."
+        description: "Llama stack version key from versions.json (e.g. '0.4.3')."
         required: true
 
 env:
   IMAGE_NAME: rag-content
   IMAGE_REGISTRY: quay.io
-  REGISTRY_ORG: redhat-ai-dev
+  REGISTRY_ORG: rh-ee-jdubrick
   CONTAINER_FILE: Containerfile
 
 jobs:
@@ -36,31 +36,52 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
-      base_image: ${{ steps.resolve.outputs.base_image }}
+      release_tag: ${{ steps.resolve.outputs.release_tag }}
+      asset_url: ${{ steps.resolve.outputs.asset_url }}
       latest_tag: ${{ steps.resolve.outputs.latest_tag }}
     steps:
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
-      - name: Resolve base image and tag
+      - name: Resolve asset release and image tags
         id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          RHDH_VERSION="${{ inputs.version }}"
           LLAMA_VERSION="${{ inputs.llama_stack_version }}"
 
-          BASE_IMAGE=$(./scripts/resolve-base-image.sh "$LLAMA_VERSION" "cpu")
-
-          # Map 'latest' to 'experimental' for the image tag suffix
-          if [ "$LLAMA_VERSION" == "latest" ]; then
+          if [ "$LLAMA_VERSION" = "latest" ]; then
             TAG_SUFFIX="experimental"
           else
             TAG_SUFFIX="$LLAMA_VERSION"
           fi
 
-          LATEST_TAG="release-${{ inputs.version }}-lls-${TAG_SUFFIX}"
+          RELEASE_TAG="rag-assets-rhdh-${RHDH_VERSION}-lls-${TAG_SUFFIX}"
+          LATEST_TAG="release-${RHDH_VERSION}-lls-${TAG_SUFFIX}"
+          ASSET_NAME="${RELEASE_TAG}.tar.gz"
+          ASSET_URL="https://github.com/${{ github.repository }}/releases/download/${RELEASE_TAG}/${RELEASE_TAG}.tar.gz"
 
-          echo "base_image=${BASE_IMAGE}" >> $GITHUB_OUTPUT
+          RELEASE_ASSET_FOUND=$(gh release view "$RELEASE_TAG" \
+            --repo "${{ github.repository }}" \
+            --json assets \
+            --jq ".assets[] | select(.name == \"${ASSET_NAME}\") | .name" \
+            | awk 'NR==1{print; exit}')
+
+          if [ -z "$RELEASE_ASSET_FOUND" ]; then
+            echo "Missing required release asset '${ASSET_NAME}' in release '${RELEASE_TAG}'" >&2
+            exit 1
+          fi
+
+          echo "release_tag=${RELEASE_TAG}" >> $GITHUB_OUTPUT
+          echo "asset_url=${ASSET_URL}" >> $GITHUB_OUTPUT
           echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
 
-          echo "Resolved base image: ${BASE_IMAGE}"
+          echo "Resolved release tag: ${RELEASE_TAG}"
+          echo "Resolved asset URL: ${ASSET_URL}"
           echo "Image tag: ${LATEST_TAG}"
 
   build:
@@ -80,6 +101,7 @@ jobs:
       - name: Set tag from setup
         run: |
           echo "LATEST_TAG=${{ needs.setup.outputs.latest_tag }}" >> $GITHUB_ENV
+          echo "RAG_ASSET_URL=${{ needs.setup.outputs.asset_url }}" >> $GITHUB_ENV
       - name: Install buildah
         run: |
           sudo apt update
@@ -99,9 +121,7 @@ jobs:
           archs: ${{ matrix.arch }}
           oci: true
           build-args: |
-            RHDH_DOCS_VERSION=${{ inputs.version }}
-            BASE_IMAGE=${{ needs.setup.outputs.base_image }}
-            LLAMA_STACK_VERSION=${{ inputs.llama_stack_version }}
+            RAG_ASSETS_URL=${{ env.RAG_ASSET_URL }}
       - name: Check images
         run: |
           buildah images | grep '${{ env.IMAGE_NAME }}'

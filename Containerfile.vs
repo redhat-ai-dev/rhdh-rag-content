@@ -41,8 +41,9 @@ RUN set -e && for RHDH_VERSION in $(ls -1 rhdh-product-docs-plaintext); do \
             -v ${RHDH_VERSION}; \
     done
 
-# Keep generated content under /rag while preserving /rag-content as the working directory. needed to preserve other pieces that depend on where it was built and finally stored
+# Keep generated content under /rag while preserving /rag-content as the working directory.
 RUN mkdir -p /rag/vector_db && \
-    mv /rag-content/vector_db/rhdh_product_docs /rag/vector_db/rhdh_product_docs
+    mv /rag-content/vector_db/rhdh_product_docs /rag/vector_db/rhdh_product_docs && \
+    mv /rag-content/embeddings_model /rag/embeddings_model
 
 USER 65532:65532
