@@ -24,7 +24,9 @@ IMAGE_NAME ?= rhdh-rag-content
 BASE_IMAGE := $(shell ./scripts/resolve-base-image.sh "$(LLAMA_STACK_VERSION)" "$(FLAVOR)")
 
 build-image: ## Build the container image
-	podman build --platform ${PLATFORM} -t ${IMAGE_NAME} -f Containerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg RHDH_DOCS_VERSION=$(RHDH_DOCS_VERSION) .
+	podman build --platform ${PLATFORM} -t ${IMAGE_NAME} -f Containerfile.local \
+		--build-arg BASE_IMAGE=$(BASE_IMAGE) \
+		--build-arg RHDH_DOCS_VERSION=$(RHDH_DOCS_VERSION) .
 
 help: ## Show this help screen
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'

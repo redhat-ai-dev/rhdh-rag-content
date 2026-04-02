@@ -21,14 +21,6 @@ on:
       version:
         description: "The version of RHDH documentation you want to build for. E.g. ('1.8')."
         required: true
-      compute_flavor:
-        description: "The compute flavor for the container build."
-        required: false
-        default: "cpu"
-        type: choice
-        options:
-          - cpu
-          - gpu
       llama_stack_version:
         description: "Llama stack version key from versions.json (e.g. '0.4.3' or 'latest' for experimental)."
         required: true
@@ -41,7 +33,7 @@ env:
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       base_image: ${{ steps.resolve.outputs.base_image }}
@@ -54,7 +46,7 @@ jobs:
         run: |
           LLAMA_VERSION="${{ inputs.llama_stack_version }}"
 
-          BASE_IMAGE=$(./scripts/resolve-base-image.sh "$LLAMA_VERSION" "${{ inputs.compute_flavor }}")
+          BASE_IMAGE=$(./scripts/resolve-base-image.sh "$LLAMA_VERSION" "cpu")
 
           # Map 'latest' to 'experimental' for the image tag suffix
           if [ "$LLAMA_VERSION" == "latest" ]; then
@@ -64,10 +56,6 @@ jobs:
           fi
 
           LATEST_TAG="release-${{ inputs.version }}-lls-${TAG_SUFFIX}"
-
-          if [ "${{ inputs.compute_flavor }}" == "gpu" ]; then
-            LATEST_TAG="${LATEST_TAG}-gpu"
-          fi
 
           echo "base_image=${BASE_IMAGE}" >> $GITHUB_OUTPUT
           echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
@@ -113,6 +101,7 @@ jobs:
           build-args: |
             RHDH_DOCS_VERSION=${{ inputs.version }}
             BASE_IMAGE=${{ needs.setup.outputs.base_image }}
+            LLAMA_STACK_VERSION=${{ inputs.llama_stack_version }}
       - name: Check images
         run: |
           buildah images | grep '${{ env.IMAGE_NAME }}'

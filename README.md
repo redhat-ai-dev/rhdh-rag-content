@@ -8,27 +8,62 @@
 
 ## Overview
 
-This repository produces Red Hat Developer Hub (RHDH) Lightspeed RAG content container images. Images are built on top of the upstream [`lightspeed-core/rag-content`](https://github.com/lightspeed-core/rag-content) base images, with the specific upstream image tag determined by the selected llama stack version via [`ci-versions.json`](ci-versions.json).
+This repository produces Red Hat Developer Hub (RHDH) Lightspeed RAG content container images. Images are built on top of the upstream [`lightspeed-core/rag-content`](https://github.com/lightspeed-core/rag-content) base images, with the specific upstream image tag determined by the selected llama stack version via [`versions.json`](versions.json).
 
 The container images are published to [redhat-ai-dev/rag-content](https://quay.io/repository/redhat-ai-dev/rag-content?tab=tags) on Quay.io.
 
-## CI / Building Images
+Pre-generated vector stores are stored in a separate repository: [`redhat-ai-dev/rhdh-vector-stores`](https://github.com/redhat-ai-dev/rhdh-vector-stores).
 
-Container images are built and pushed through a GitHub Actions workflow triggered manually from the **Actions** tab (`workflow_dispatch`).
+## CI Workflows
 
-### Workflow Inputs
+There are two GitHub Actions workflows, both triggered manually via `workflow_dispatch`.
+
+### 1. Generate and PR Vector Store (`gen-vector-store.yml`)
+
+Generates a vector store from RHDH documentation and opens a pull request to the [vector-stores repository](https://github.com/redhat-ai-dev/rhdh-vector-stores) with the result.
+
+#### Inputs
 
 | Input | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | string | yes | RHDH documentation version, e.g. `1.8` |
-| `compute_flavor` | choice (`cpu` / `gpu`) | no (default: `cpu`) | Compute flavor for the container build |
-| `llama_stack_version` | string | yes | A llama stack version key from `ci-versions.json`, e.g. `0.4.3` or `latest` for experimental |
+| `version` | string | yes | RHDH documentation version, e.g. `1.9` |
+| `llama_stack_version` | string | yes | Llama stack version key from `versions.json`, e.g. `0.4.3` or `latest` |
 
-### How It Works
+#### How It Works
 
-1. The workflow reads `ci-versions.json` and looks up the `lightspeed_rag_content_tag` for the given `llama_stack_version`.
-2. That tag is passed as the `TAG` build arg to the Containerfile, which pulls the corresponding upstream `quay.io/lightspeed-core/rag-content-{flavor}:{tag}` base image.
-3. If `latest` is selected as the llama stack version, the resulting image is tagged with `experimental` to signal that it tracks an upstream moving target and may be unstable.
+1. Resolves the upstream base image from `versions.json` for the given `llama_stack_version`.
+2. Builds `Containerfile.vs` which generates embeddings and the vector database inside the container.
+3. Extracts the `/rag/vector_db` directory from the built image.
+4. Clones the vector-stores repository, places the extracted content under `<llama_stack_version>/vector_db/`, and opens a PR.
+
+The resulting PR places files in the vector-stores repo at:
+
+```
+<llama_stack_version>/vector_db/rhdh_product_docs/<RHDH_DOCS_VERSION>/
+```
+
+### 2. Build and Push RAG Container (`build-and-push.yml`)
+
+Builds the final multi-arch container image and pushes it to Quay.io.
+
+> [!IMPORTANT]
+> The vector store for the target `llama_stack_version` and `version` must already exist in the [vector-stores repository](https://github.com/redhat-ai-dev/rhdh-vector-stores). If it does not, run the **Generate and PR Vector Store** workflow first and merge the resulting PR before building.
+
+#### Inputs
+
+| Input | Type | Required | Description |
+|-------|------|----------|-------------|
+| `version` | string | yes | RHDH documentation version, e.g. `1.9` |
+| `llama_stack_version` | string | yes | Llama stack version key from `versions.json`, e.g. `0.4.3` or `latest` |
+
+#### How It Works
+
+1. Resolves the upstream CPU base image from `versions.json` for the given `llama_stack_version`.
+2. Builds `Containerfile` which clones the vector-stores repo at `main` (or a configurable ref for release builds), validates that the expected vector store directory exists, and copies the vector DB and embeddings model into a minimal UBI image.
+3. Pushes architecture-specific images (amd64 + arm64) to Quay.io.
+4. Creates and pushes multi-arch manifests.
+
+The build will **fail** if the vector store for the requested `llama_stack_version` and `version` is not present in the vector-stores repo.
 
 ### Image Tags
 
@@ -40,64 +75,76 @@ release-<doc_version>-lls-<llama_stack_version | experimental>
 
 Examples:
 
-- `release-1.8-lls-0.4.3` — stable build pinned to llama stack 0.4.3
-- `release-1.8-lls-0.3.5` — stable build pinned to llama stack 0.3.5
-- `release-1.8-lls-experimental` — built from upstream `latest`, may be unstable
+- `release-1.9-lls-0.4.3` — stable build pinned to llama stack 0.4.3
+- `release-1.9-lls-0.3.5` — stable build pinned to llama stack 0.3.5
+- `release-1.9-lls-experimental` — built from upstream `latest`, may be unstable
 
 A SHA-preserved tag is also pushed for every build for historic image preservation:
 
-- `release-1.8-lls-0.4.3-<github_sha>`
-- `release-1.8-lls-experimental-<github_sha>`
+- `release-1.9-lls-0.4.3-<github_sha>`
+- `release-1.9-lls-experimental-<github_sha>`
 
-## ci-versions.json
+## versions.json
 
-The [`ci-versions.json`](ci-versions.json) file is the single source of truth for mapping llama stack versions to upstream base image tags.
+The [`versions.json`](versions.json) file is the single source of truth for mapping llama stack versions to upstream base image digests.
 
 ### Structure
 
 ```json
 {
+    "current_version": "0.4.3",
+    "base_image": "quay.io/lightspeed-core/rag-content",
     "images": [
         {
-            "llama_stack_version": "0.3.5",
-            "lightspeed_rag_content_tag": "dev-20260123-60036ff"
-        },
-        {
             "llama_stack_version": "0.4.3",
-            "lightspeed_rag_content_tag": "dev-20260130-1c38b94"
+            "digests": {
+                "cpu": "sha256:314a616c0efc944e376f35a50c9d98f6aab53e68a0971a2195024474aee8209c",
+                "gpu": "sha256:47885985ee3f534c1cec33b4e9c5d43b870ec791b963354cb3e9c48b36ead902"
+            }
         },
         {
             "llama_stack_version": "latest",
-            "lightspeed_rag_content_tag": "latest"
+            "digests": {
+                "cpu": "sha256:...",
+                "gpu": "sha256:..."
+            }
         }
     ]
 }
 ```
 
+- `current_version` is the default llama stack version used by PR smoke tests (`.github/workflows/pr-tests.yml`).
+- `base_image` is the upstream image repository prefix (e.g. `quay.io/lightspeed-core/rag-content`).
 - `images` is an array of objects, each representing a supported llama stack version.
-- `llama_stack_version` is the llama stack version string (e.g. `0.3.5`, `0.4.3`, `latest`).
-- `lightspeed_rag_content_tag` is the image tag for the upstream `quay.io/lightspeed-core/rag-content-{flavor}` image.
+- `llama_stack_version` is the version string (e.g. `0.3.5`, `0.4.3`, `latest`).
+- `digests` contains pinned image digests keyed by compute flavor (`cpu` / `gpu`). CI workflows always use `cpu`.
 - The `latest` entry tracks the upstream `latest` tag and is considered experimental / potentially unstable.
 
 ### Adding a New Llama Stack Version
 
-To add support for a new llama stack version, append a new object to the `images` array with the version and pinned upstream image tag:
+To add support for a new llama stack version:
+
+1. Append a new object to the `images` array in `versions.json` with the version and pinned digests:
 
 ```json
 {
     "llama_stack_version": "0.5.0",
-    "lightspeed_rag_content_tag": "dev-20260215-abc1234"
+    "digests": {
+        "cpu": "sha256:abc123...",
+        "gpu": "sha256:def456..."
+    }
 }
 ```
 
-Then trigger the workflow with `llama_stack_version` set to `0.5.0`.
+2. Run the **Generate and PR Vector Store** workflow with the new `llama_stack_version` and desired `version`. Merge the resulting PR in the vector-stores repo.
+3. Run the **Build and Push RAG Container** workflow with `llama_stack_version` set to `0.5.0`.
 
 ## Release Strategy
 
-- **Future release branches** (cut from `main` after this CI change) carry their own copy of `ci-versions.json` pinned to the llama stack versions validated for that release.
-- **Existing release branches** (pre-refactor) retain the old workflow with the `experimental` boolean and are unaffected.
-- **Cutting a new release**: branch from `main`, review `ci-versions.json`, and lock it to only the versions that are known-good for that release (i.e., remove `latest` if desired).
-- **Rebuilding a historic image**: navigate to the release branch in GitHub and trigger the workflow. The workflow reads the branch's own `ci-versions.json`, ensuring the correct upstream image tags are used.
+- **Future release branches** (cut from `main`) carry their own copy of `versions.json` pinned to the llama stack versions validated for that release.
+- **Existing release branches** (pre-refactor) retain the old workflow and are unaffected.
+- **Cutting a new release**: branch from `main`, review `versions.json`, and lock it to only the versions that are known-good for that release (i.e., remove `latest` if desired). For the `Containerfile`, update `VECTOR_STORE_REF` to point to the appropriate release branch or tag in the vector-stores repo.
+- **Rebuilding a historic image**: navigate to the release branch in GitHub and trigger the workflow. The workflow reads the branch's own `versions.json`, ensuring the correct upstream image digests are used.
 
 ## Local Development
 
@@ -134,17 +181,7 @@ To build a container image locally using the Makefile:
 make build-image
 ```
 
-This defaults to `cpu` flavor. To build for GPU:
-
-```bash
-make build-image FLAVOR=gpu
-```
-
-#### GPU Build Notes
-
-- No NVIDIA GPU is required to **build** the GPU-flavored image. The CUDA libraries are bundled in the upstream base image. A GPU is only needed to **run** GPU-accelerated workloads from the built image.
-- The `PLATFORM` Makefile variable defaults to `linux/amd64` but can be overridden to match your local architecture (e.g. `PLATFORM=linux/arm64` on Apple Silicon). Both the NVIDIA CUDA base image and the upstream `lightspeed-core/rag-content-gpu` image support `amd64` and `arm64`.
-- Machines without CUDA-capable NVIDIA GPUs can build and test the image, but cannot use it for GPU-accelerated inference.
+This uses `Containerfile.local` which generates the vector DB during image build — no vector-stores repo dependency required. The `PLATFORM` variable defaults to `linux/amd64` but can be overridden (e.g. `PLATFORM=linux/arm64` on Apple Silicon).
 
 ## Verifying Vector Database
 
@@ -152,14 +189,13 @@ After building the container image, you can inspect and query the generated vect
 
 ### Building the Builder Stage
 
-The final container image is minimal and only contains the vector database files. To run verification scripts, build the builder stage which includes Python and all dependencies:
+The `Containerfile.local` builder stage includes Python and all dependencies. To build just that stage for interactive verification:
 
 ```bash
-podman build --platform linux/arm64 \
+podman build --platform linux/amd64 \
     --target lightspeed-core-rag-builder \
     -t rhdh-rag-builder \
-    -f Containerfile \
-    --build-arg FLAVOR=cpu .
+    -f Containerfile.local .
 ```
 
 Then start an interactive shell:
