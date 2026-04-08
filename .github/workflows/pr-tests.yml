@@ -21,13 +21,11 @@ on:
 
 jobs:
   image-test:
-    strategy:
-      matrix:
-        flavor: [cpu]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       IMAGE_NAME: rhdh-rag-content-test
+      IMAGE_TAG: smoke
     permissions:
       contents: read
     steps:
@@ -73,9 +71,9 @@ jobs:
         run: |
           docker build \
             --build-arg RAG_ASSETS_URL=${{ steps.release-asset.outputs.asset_url }} \
-            -t ${{ env.IMAGE_NAME }}:${{ matrix.flavor }} \
+            -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
             -f Containerfile .
 
       - name: Validate image content
         run: |
-          .ci/test_image_content.sh "${{ env.IMAGE_NAME }}:${{ matrix.flavor }}"
+          .ci/test_image_content.sh "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"

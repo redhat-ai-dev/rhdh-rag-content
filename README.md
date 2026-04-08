@@ -8,7 +8,7 @@
 
 ## Overview
 
-This repository produces Red Hat Developer Hub (RHDH) Lightspeed RAG content container images. Images are built on top of the upstream [`lightspeed-core/rag-content`](https://github.com/lightspeed-core/rag-content) base images, with the specific upstream image tag determined by the selected llama stack version via [`versions.json`](versions.json).
+This repository produces Red Hat Developer Hub (RHDH) Lightspeed RAG content container images. Images are built on top of the upstream [`lightspeed-core/rag-content`](https://github.com/lightspeed-core/rag-content) CPU base images, with the specific upstream image digest determined by the selected llama stack version via [`versions.json`](versions.json).
 
 The container images are published to [redhat-ai-dev/rag-content](https://quay.io/repository/redhat-ai-dev/rag-content?tab=tags) on Quay.io.
 
@@ -93,47 +93,38 @@ The [`versions.json`](versions.json) file is the single source of truth for mapp
 
 ```json
 {
-    "current_version": "0.4.3",
-    "base_image": "quay.io/lightspeed-core/rag-content",
+    "current_version": "0.5.0",
+    "base_image": "quay.io/lightspeed-core/rag-content-cpu",
     "images": [
         {
             "llama_stack_version": "0.4.3",
-            "digests": {
-                "cpu": "sha256:314a616c0efc944e376f35a50c9d98f6aab53e68a0971a2195024474aee8209c",
-                "gpu": "sha256:47885985ee3f534c1cec33b4e9c5d43b870ec791b963354cb3e9c48b36ead902"
-            }
+            "digest": "sha256:314a616c0efc944e376f35a50c9d98f6aab53e68a0971a2195024474aee8209c"
         },
         {
             "llama_stack_version": "latest",
-            "digests": {
-                "cpu": "sha256:...",
-                "gpu": "sha256:..."
-            }
+            "digest": "sha256:..."
         }
     ]
 }
 ```
 
 - `current_version` is the default llama stack version used by PR smoke tests (`.github/workflows/pr-tests.yml`).
-- `base_image` is the upstream image repository prefix (e.g. `quay.io/lightspeed-core/rag-content`).
+- `base_image` is the upstream CPU image repository (e.g. `quay.io/lightspeed-core/rag-content-cpu`).
 - `images` is an array of objects, each representing a supported llama stack version.
 - `llama_stack_version` is the version string (e.g. `0.3.5`, `0.4.3`, `latest`).
-- `digests` contains pinned image digests keyed by compute flavor (`cpu` / `gpu`). CI workflows always use `cpu`.
+- `digest` is the pinned upstream image digest for that llama stack version.
 - The `latest` entry tracks the upstream `latest` tag and is considered experimental / potentially unstable.
 
 ### Adding a New Llama Stack Version
 
 To add support for a new llama stack version:
 
-1. Append a new object to the `images` array in `versions.json` with the version and pinned digests:
+1. Append a new object to the `images` array in `versions.json` with the version and pinned digest:
 
 ```json
 {
     "llama_stack_version": "0.5.0",
-    "digests": {
-        "cpu": "sha256:abc123...",
-        "gpu": "sha256:def456..."
-    }
+    "digest": "sha256:abc123..."
 }
 ```
 

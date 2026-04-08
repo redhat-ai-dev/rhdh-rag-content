@@ -19,28 +19,26 @@ set -euo pipefail
 VERSIONS_FILE="$(cd "$(dirname "$0")/.." && pwd)/versions.json"
 
 usage() {
-    echo "Usage: $0 <llama_stack_version> <flavor>" >&2
+    echo "Usage: $0 <llama_stack_version>" >&2
     echo "  llama_stack_version  Version key from versions.json (e.g. '0.4.3', 'latest')" >&2
-    echo "  flavor               Compute flavor ('cpu' or 'gpu')" >&2
     exit 1
 }
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 1 ]; then
     usage
 fi
 
 VERSION="$1"
-FLAVOR="$2"
 
 BASE_REPO=$(jq -r '.base_image' "$VERSIONS_FILE")
-DIGEST=$(jq -r --arg version "$VERSION" --arg flavor "$FLAVOR" \
-    '.images[] | select(.llama_stack_version == $version) | .digests[$flavor]' "$VERSIONS_FILE")
+DIGEST=$(jq -r --arg version "$VERSION" \
+    '.images[] | select(.llama_stack_version == $version) | .digest' "$VERSIONS_FILE")
 
 if [ -z "$DIGEST" ] || [ "$DIGEST" == "null" ]; then
     AVAILABLE=$(jq -r '[.images[].llama_stack_version] | join(", ")' "$VERSIONS_FILE")
-    echo "Error: Could not resolve digest for version='$VERSION' flavor='$FLAVOR' in $VERSIONS_FILE" >&2
+    echo "Error: Could not resolve digest for version='$VERSION' in $VERSIONS_FILE" >&2
     echo "Available versions: $AVAILABLE" >&2
     exit 1
 fi
 
-echo "${BASE_REPO}-${FLAVOR}@${DIGEST}"
+echo "${BASE_REPO}@${DIGEST}"

@@ -14,14 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FLAVOR ?= cpu
 LLAMA_STACK_VERSION ?= latest
 RHDH_DOCS_VERSION ?= 1.9
 NUM_WORKERS ?= $$(( $(shell nproc --all) / 2))
 PLATFORM ?= linux/amd64
 IMAGE_NAME ?= rhdh-rag-content
 
-BASE_IMAGE := $(shell ./scripts/resolve-base-image.sh "$(LLAMA_STACK_VERSION)" "$(FLAVOR)")
+BASE_IMAGE := $(shell ./scripts/resolve-base-image.sh "$(LLAMA_STACK_VERSION)")
 
 build-image: ## Build the container image
 	podman build --platform ${PLATFORM} -t ${IMAGE_NAME} -f Containerfile.local \

@@ -69,11 +69,6 @@
       "enabled": false
     },
     {
-      "matchManagers": ["dockerfile"],
-      "matchPackageNames": ["quay.io/lightspeed-core/rag-content-gpu"],
-      "enabled": false
-    },
-    {
       "matchManagers": ["pep621"],
       "matchPackageNames": ["python"],
       "matchUpdateTypes": ["major", "minor"],
