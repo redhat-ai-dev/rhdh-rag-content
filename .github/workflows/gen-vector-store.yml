@@ -49,7 +49,7 @@ jobs:
         id: resolve
         run: |
           LLAMA_VERSION="${{ inputs.llama_stack_version }}"
-          BASE_IMAGE=$(./scripts/resolve-base-image.sh "$LLAMA_VERSION" "cpu")
+          BASE_IMAGE=$(./scripts/resolve-base-image.sh "$LLAMA_VERSION")
 
           if [ "$LLAMA_VERSION" == "latest" ]; then
             TAG_SUFFIX="experimental"
