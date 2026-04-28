@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "config:recommended",
     "helpers:pinGitHubActionDigests",
     ":gitSignOff"
   ],
@@ -16,37 +16,28 @@
     "custom.regex",
     "pep621"
   ],
-  "regexManagers": [
+  "customManagers": [
     {
-      "fileMatch": [
-        "pyproject\\.toml$"
-      ],
-      "matchStrings": [
-        "\"(?<depName>\\S*)\\s+@\\s+git\\+(?<packageName>\\S*)@(?<currentDigest>\\S*)\",\\n"
-      ],
+      "customType": "regex",
+      "managerFilePatterns": ["/pyproject\\.toml$/"],
+      "matchStrings": ["\"(?<depName>\\S*)\\s+@\\s+git\\+(?<packageName>\\S*)@(?<currentDigest>\\S*)\",\\n"],
       "currentValueTemplate": "main",
       "datasourceTemplate": "git-refs",
       "packageNameTemplate": "{{{packageName}}}",
       "depNameTemplate": "{{{depName}}}"
     },
     {
-      "fileMatch": [
-        "(M|m)akefile$"
-      ],
-      "matchStrings": [
-        "RHDH_DOCS_VERSION\\s+\\?\\=\\s+\"?(?<currentValue>.*)\"?\\n"
-      ],
+      "customType": "regex",
+      "managerFilePatterns": ["/(M|m)akefile$/"],
+      "matchStrings": ["RHDH_DOCS_VERSION\\s+\\?\\=\\s+\"?(?<currentValue>.*)\"?\\n"],
       "datasourceTemplate": "github-tags",
       "packageNameTemplate": "redhat-developer/red-hat-developers-documentation-rhdh",
       "depNameTemplate": "rhdh-docs"
     },
     {
-      "fileMatch": [
-        "Containerfile$"
-      ],
-      "matchStrings": [
-        "ARG\\s+RHDH_DOCS_VERSION\\=\"(?<currentValue>.*)\"\\n"
-      ],
+      "customType": "regex",
+      "managerFilePatterns": ["/Containerfile$/"],
+      "matchStrings": ["ARG\\s+RHDH_DOCS_VERSION\\=\"(?<currentValue>.*)\"\\n"],
       "datasourceTemplate": "github-tags",
       "packageNameTemplate": "redhat-developer/red-hat-developers-documentation-rhdh",
       "depNameTemplate": "rhdh-docs"
