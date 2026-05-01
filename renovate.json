@@ -59,7 +59,6 @@
     },
     {
       "matchManagers": ["dockerfile"],
-      "matchPackageNames": ["registry.access.redhat.com/ubi9/ubi-minimal"],
       "matchUpdateTypes": ["major", "patch"],
       "enabled": false
     },
