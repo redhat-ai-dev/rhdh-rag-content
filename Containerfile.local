@@ -41,7 +41,7 @@ RUN set -e && for RHDH_VERSION in $(ls -1 rhdh-product-docs-plaintext); do \
             -v ${RHDH_VERSION}; \
     done
 
-FROM registry.access.redhat.com/ubi9/ubi-micro:9.7@sha256:2173487b3b72b1a7b11edc908e9bbf1726f9df46a4f78fd6d19a2bab0a701f38
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.7@sha256:e0b6e93fe3800bf75a3e95aaf63bdfd020ea6dc30a92ca4bfa0021fa28cd671a
 COPY --from=lightspeed-core-rag-builder /rag-content/vector_db/rhdh_product_docs /rag/vector_db/rhdh_product_docs
 COPY --from=lightspeed-core-rag-builder /rag-content/embeddings_model /rag/embeddings_model
 
