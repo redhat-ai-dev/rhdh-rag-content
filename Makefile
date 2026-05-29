@@ -15,7 +15,8 @@
 # limitations under the License.
 
 LLAMA_STACK_VERSION ?= latest
-RHDH_DOCS_VERSION ?= 1.9
+RHDH_DOCS_VERSION ?= 1.10
+GITHUB_PAT ?= 
 NUM_WORKERS ?= $$(( $(shell nproc --all) / 2))
 PLATFORM ?= linux/amd64
 IMAGE_NAME ?= rhdh-rag-content
@@ -25,7 +26,8 @@ BASE_IMAGE := $(shell ./scripts/resolve-base-image.sh "$(LLAMA_STACK_VERSION)")
 build-image: ## Build the container image
 	podman build --platform ${PLATFORM} -t ${IMAGE_NAME} -f Containerfile.local \
 		--build-arg BASE_IMAGE=$(BASE_IMAGE) \
-		--build-arg RHDH_DOCS_VERSION=$(RHDH_DOCS_VERSION) .
+		--build-arg RHDH_DOCS_VERSION=$(RHDH_DOCS_VERSION) \
+		--build-arg GITHUB_PAT=$(GITHUB_PAT) .
 
 help: ## Show this help screen
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'

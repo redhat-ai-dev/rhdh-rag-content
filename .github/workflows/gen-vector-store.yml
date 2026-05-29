@@ -81,6 +81,15 @@ jobs:
           sudo apt install -y buildah
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Create GitHub App token for release-notes-mirror
+        id: release-notes-app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ secrets.RELEASE_NOTES_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_NOTES_APP_PRIVATE_KEY }}
+          owner: redhat-ai-dev
+          repositories: release-notes-mirror
+          permission-contents: read
       - name: Build vector-store image with Buildah (amd64 only)
         uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
         with:
@@ -93,6 +102,7 @@ jobs:
           build-args: |
             RHDH_DOCS_VERSION=${{ inputs.version }}
             BASE_IMAGE=${{ needs.setup.outputs.base_image }}
+            GITHUB_PAT=${{ steps.release-notes-app-token.outputs.token }}
       - name: Extract RAG assets from built image
         run: |
           buildah unshare -- bash ./scripts/extract-vector-db.sh \

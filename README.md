@@ -170,8 +170,10 @@ The `pyproject.toml` and `uv.lock` files are maintained for local development us
 To build a container image locally using the Makefile:
 
 ```bash
-make build-image
+make build-image GITHUB_PAT=<your-pat>
 ```
+
+The `GITHUB_PAT` is required to clone the private [release-notes-mirror](https://github.com/redhat-ai-dev/release-notes-mirror) repository during the build. The PAT needs read access to that repository — a fine-grained token with **Contents: Read** permission scoped to `redhat-ai-dev/release-notes-mirror`, or a classic token with `repo` scope.
 
 This uses `Containerfile.local` which generates the vector DB during image build — no vector-stores repo dependency required. The `PLATFORM` variable defaults to `linux/amd64` but can be overridden (e.g. `PLATFORM=linux/arm64` on Apple Silicon).
 
