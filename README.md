@@ -14,6 +14,19 @@ The container images are published to [redhat-ai-dev/rag-content](https://quay.i
 
 Pre-generated RAG assets (vector store + embeddings model) are published as GitHub Release artifacts in this repository.
 
+## Mirroring Release Notes
+
+The RHDH release notes live in an internal GitLab repository. Before running the RAG asset generation workflow, you must ensure the [release-notes-mirror](https://github.com/redhat-ai-dev/release-notes-mirror) GitHub repository is up to date:
+
+```bash
+./scripts/mirror-release-notes.sh
+```
+
+> [!NOTE]
+> You must be connected to the VPN to run this script. It clones from GitLab and pushes a mirror to GitHub.
+
+Run this whenever the internal release notes have changed and you need to regenerate RAG assets.
+
 ## CI Workflows
 
 There are two GitHub Actions workflows.
