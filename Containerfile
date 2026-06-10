@@ -31,7 +31,7 @@ RUN test -n "${RAG_ASSETS_URL}" && \
     test -d extracted/embeddings_model
 
 # https://registry.access.redhat.com/ubi9/ubi-micro
-FROM registry.access.redhat.com/ubi9/ubi-micro:9.8-1779858820@sha256:b498b3ea26111ab4b81d65139f2ebd2ef9a2abb7a4588b7fdcc54889f95e9caa
+FROM registry.access.redhat.com/ubi9/ubi-micro:1779858857@sha256:b498b3ea26111ab4b81d65139f2ebd2ef9a2abb7a4588b7fdcc54889f95e9caa
 
 COPY --from=rag-assets-downloader /tmp/rag-assets/extracted/vector_db/rhdh_product_docs /rag/vector_db/rhdh_product_docs
 COPY --from=rag-assets-downloader /tmp/rag-assets/extracted/embeddings_model /rag/embeddings_model
