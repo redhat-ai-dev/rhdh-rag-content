@@ -10,6 +10,7 @@
     "* 19-23 * * 0",
     "* 0-2 * * 1"
   ],
+  "baseBranchPatterns": ["/^main$/", "/^release-\\d+\\.\\d+(\\.(?:\\d+|x))?$/"],
   "enabledManagers": [
     "dockerfile",
     "github-actions",
