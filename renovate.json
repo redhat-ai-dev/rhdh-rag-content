@@ -10,6 +10,7 @@
     "* 19-23 * * 0",
     "* 0-2 * * 1"
   ],
+  "baseBranchPatterns": ["/^main$/", "/^release-\\d+\\.\\d+$/"],
   "enabledManagers": [
     "dockerfile",
     "github-actions",
@@ -52,6 +53,14 @@
       "matchManagers": ["dockerfile"],
       "matchUpdateTypes": ["major", "patch"],
       "enabled": false
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": [
+        "registry.access.redhat.com/ubi9/ubi-micro", 
+        "registry.access.redhat.com/ubi9/ubi-minimal"
+      ],
+      "enabled": true
     },
     {
       "matchManagers": ["dockerfile"],
