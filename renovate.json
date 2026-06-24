@@ -55,6 +55,14 @@
     },
     {
       "matchManagers": ["dockerfile"],
+      "matchPackageNames": [
+        "registry.access.redhat.com/ubi9/ubi-micro", 
+        "registry.access.redhat.com/ubi9/ubi-minimal"
+      ],
+      "enabled": true
+    },
+    {
+      "matchManagers": ["dockerfile"],
       "matchPackageNames": ["quay.io/lightspeed-core/rag-content-cpu"],
       "enabled": false
     },
