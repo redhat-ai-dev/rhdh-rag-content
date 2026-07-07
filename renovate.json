@@ -64,6 +64,12 @@
     },
     {
       "matchManagers": ["dockerfile"],
+      "matchUpdateTypes": ["major", "minor"],
+      "matchBaseBranches": ["/^release-\\d+\\.\\d+$/"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["dockerfile"],
       "matchPackageNames": ["quay.io/lightspeed-core/rag-content-cpu"],
       "enabled": false
     },
