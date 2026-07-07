@@ -64,6 +64,12 @@
     },
     {
       "matchManagers": ["dockerfile"],
+      "matchUpdateTypes": ["major", "minor"],
+      "matchBaseBranches": ["/^release-\\d+\\.\\d+$/"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["dockerfile"],
       "matchPackageNames": ["quay.io/lightspeed-core/rag-content-cpu"],
       "enabled": false
     },
@@ -76,6 +82,11 @@
     {
       "matchManagers": ["pep621"],
       "matchPackageNames": ["lightspeed-rag-content"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["github-actions","pep621","custom.regex"],
+      "matchBaseBranches": ["/^release-\\d+\\.\\d+$/"],
       "enabled": false
     },
     {
