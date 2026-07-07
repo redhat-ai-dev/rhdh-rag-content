@@ -107,5 +107,6 @@
   },
   "prHourlyLimit": 20,
   "prConcurrentLimit": 10,
-  "labels": ["renovatebot"]
+  "labels": ["renovatebot"],
+  "reviewers": ["team:ai-development-team"]
 }
