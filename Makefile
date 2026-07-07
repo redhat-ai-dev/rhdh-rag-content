@@ -15,7 +15,7 @@
 # limitations under the License.
 
 LLAMA_STACK_VERSION ?= latest
-RHDH_DOCS_VERSION ?= 1.9
+RHDH_DOCS_VERSION ?= 1.10
 NUM_WORKERS ?= $$(( $(shell nproc --all) / 2))
 PLATFORM ?= linux/amd64
 IMAGE_NAME ?= rhdh-rag-content
