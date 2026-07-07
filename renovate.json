@@ -85,6 +85,11 @@
       "enabled": false
     },
     {
+      "matchManagers": ["github-actions","pep621","custom.regex"],
+      "matchBaseBranches": ["/^release-\\d+\\.\\d+$/"],
+      "enabled": false
+    },
+    {
       "matchDepNames": ["rhdh-docs"],
       "extractVersion": "^(?<version>\\d+\\.\\d+)",
       "versioning": "loose"
