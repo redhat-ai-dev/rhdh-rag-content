@@ -44,7 +44,7 @@ jobs:
       asset_name: ${{ steps.resolve.outputs.asset_name }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Resolve base image and release metadata
         id: resolve
         run: |
@@ -80,7 +80,7 @@ jobs:
           sudo apt update
           sudo apt install -y buildah
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Create GitHub App token for release-notes-mirror
         id: release-notes-app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
