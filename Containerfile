@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # https://registry.access.redhat.com/ubi9/ubi-minimal
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1789349365@sha256:186a94b76e386782f576c9c49813b16dceb2ba63102af5a28405dcefec2806d0 AS rag-assets-downloader
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1789448614@sha256:f9837da6236ba91733dc2db80696d8905966f585808c429c809633744ce53bb4 AS rag-assets-downloader
 
 ARG RAG_ASSETS_URL
 
