@@ -2,6 +2,12 @@
 
 [![Apache2.0 License](https://img.shields.io/badge/license-Apache2.0-brightgreen.svg)](LICENSE)
 
+> [!WARNING]
+> The main branch has been retired and will no longer receive updates. For development past 1.10, RAG has been deprecated in favour of OKP.
+>
+> For active 1.10.x patch changes, visit the [release-1.10 branch](https://github.com/redhat-ai-dev/rhdh-rag-content/tree/release-1.10).
+
+
 > [!NOTE]
 > The `main` branch hosts the RHDH RAG logic compatible with LCORE's [rag-content](https://github.com/lightspeed-core/rag-content).
 > 
