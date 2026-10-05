@@ -12,10 +12,7 @@
   ],
   "baseBranchPatterns": ["/^main$/", "/^release-\\d+\\.\\d+$/"],
   "enabledManagers": [
-    "dockerfile",
-    "github-actions",
-    "custom.regex",
-    "pep621"
+    "github-actions"
   ],
   "customManagers": [
     {
