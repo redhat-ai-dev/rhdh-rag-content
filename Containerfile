@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # https://registry.access.redhat.com/ubi9/ubi-minimal
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1793862054@sha256:4b79c93106c14ad1c234907f83441ff0e4f8d24e78426a36e159098e9f7e6fa5 AS rag-assets-downloader
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1794186349@sha256:f26ef64172ea61f5ac5ba4be8c5c738bf8760b22b3e5148ce7b40f7308ab32db AS rag-assets-downloader
 
 ARG RAG_ASSETS_URL
 
@@ -31,7 +31,7 @@ RUN test -n "${RAG_ASSETS_URL}" && \
     test -d extracted/embeddings_model
 
 # https://registry.access.redhat.com/ubi9/ubi-micro
-FROM registry.access.redhat.com/ubi9/ubi-micro:9.8-1793860449@sha256:6d9eff186ce3ccf399c1835265e7fd3f83bd112cc3422da2d39fd44e234aab59
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.8-1794184668@sha256:d3499a0896e2d6a1642f922615831bc5c2fd513bbb34f3446cabba530d9d54a2
 
 COPY --from=rag-assets-downloader /tmp/rag-assets/extracted/vector_db/rhdh_product_docs /rag/vector_db/rhdh_product_docs
 COPY --from=rag-assets-downloader /tmp/rag-assets/extracted/embeddings_model /rag/embeddings_model
